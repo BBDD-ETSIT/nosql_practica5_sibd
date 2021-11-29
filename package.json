@@ -1,14 +1,14 @@
 {
-	"name": "nosql_practica5_sibd.git",
+	"name": "nosql_practica5_sibd",
     	"author": "BBDD-ETSIT",
     	"license": "GNU",
     	"version": "0.0.0",
     	"info": {
-		"githubURL": "BBDD-ETSIT/nosql_practica5_sibd.git",
-		"serverUrl": "https://autocorector.dit.upm.es/",
-		"courseId": "903",
-		"assignmentId": "7822"
-    	},
+        	"githubURL": "BBDD-ETSIT/nosql_practica5_sibd",
+        	"serverUrl": "https://autocorector.dit.upm.es/",
+        	"courseId": "903",
+        	"assignmentId": "7822"
+   	},
 	"scripts": {
 		"start": "node rest_server.js",
 		"seed": "md-seed run",
