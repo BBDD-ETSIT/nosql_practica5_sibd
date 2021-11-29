@@ -1,13 +1,13 @@
 {
-	"name": "nosql_practica3",
-	"author": "anmunoz",
-	"license": "GNU",
-	"version": "0.0.0",
-	"info": {
-        "githubURL": "BBDD-ETSIT/nosql_practica3_sibd",
-        "serverUrl": "https://autocorector.dit.upm.es/",
-        "courseId": "903",
-        "assignmentId": "7820"
+	"name": "nosql_practica5_sibd.git",
+    	"author": "BBDD-ETSIT",
+    	"license": "GNU",
+    	"version": "0.0.0",
+    	"info": {
+		"githubURL": "BBDD-ETSIT/nosql_practica5_sibd.git",
+		"serverUrl": "https://autocorector.dit.upm.es/",
+		"courseId": "903",
+		"assignmentId": "7822"
     },
 	"scripts": {
 		"start": "node rest_server.js",
