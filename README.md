@@ -51,10 +51,11 @@ Una vez dentro de la carpeta, se instalan las dependencias con:
     $ npm install
     ```
 
-Crear 4 carpetas para que allí se almacenen los datos de cada una de las instancias de mongo que se desplegarán:
+Crear 4 carpetas (fuera de la carpeta del proyecto) para que allí se almacenen los datos de cada una de las instancias de mongo que se desplegarán:
 
 
     ```
+    $ cd algunotrodirectorio
     $ mkdir data_patients
     $ mkdir data_patients/data1 data_patients/data2 data_patients/data3 data_patients/data4
     ```
