@@ -93,7 +93,7 @@ Crear 4 carpetas para que allí se almacenen los datos de cada una de las instan
     ```
     
     
-5. Compruebe que los pacientes se han guardado en cada una de los Mongos desplegados accediendo a la shell de cada uno de ellos y ejecute las operaciones que considere. Recuerde que, para poder rejecutar operaciones de lectura dentro de la shell de mongo de los nodos secundarios, debe ejecutar rs.slaveOk() previamente.
+5. Compruebe que los pacientes se han guardado en cada una de los Mongos desplegados accediendo a la shell de cada uno de ellos y ejecute las operaciones que considere. Recuerde que, para poder rejecutar operaciones de lectura dentro de la shell de mongo de los nodos secundarios, debe ejecutar rs.slaveOk() previamente (o si esta usando Mongo en su versión 5 debe ejecutar rs.secondaryOk() ).
 
 6. Una vez comprendido el funcionamiento del escenario debe establecerse la conexión a la réplica desde la aplicación. Para ello, el alumnos debe modificar la conexión en el fichero rest_server.js e incluir los valores correspondientes para que la aplicación se conecte a la réplica “my-mongo-set” en vez de a una única instancia de Mongo. Revise las transparencias de clase de ReplicaSet para ver como hacerlo con Mongoose.
 
