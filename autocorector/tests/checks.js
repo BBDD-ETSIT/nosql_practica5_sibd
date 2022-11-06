@@ -2,10 +2,10 @@
 const assert = require('chai').assert
 const expect = require('chai').expect
 const path = require('path');
-const Utils = require('./testutils');
+const Utils = require('../utils/testutils');
 const T_TEST = 2 * 60; // Time between tests (seconds)
-const controller = require('../controllers/patient');
-const Patient = require('../models/patient');
+const controller = require('../../controllers/patient');
+const Patient = require('../../models/patient');
 const mongoose = require('mongoose');
 
 // CRITICAL ERRORS
