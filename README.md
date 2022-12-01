@@ -5,29 +5,33 @@
 <br/><br/>
 
 
-# Practica ReplicaSet
+# Practica ReplicaSet + Sharding
 
 ## 1. Objetivo
 
-- Familiarizarse con el funcionamiento de un sistema de bases de datos replicado, en concreto con el ReplicaSet de MongoDB
-- Integrar en un servicio Web una base de datos en alta disponibilidad mediante dichas réplicas
+- Familiarizarse con el funcionamiento de un sistema de bases de datos replicado y particionados, en concreto con ReplicaSet y Sharding de MongoDB
+- Integrar en un servicio Web una base de datos en alta disponibilidad mediante dichas réplicas y mejorar la eficiencia a través del particionamiento
 
 ## 2. Dependencias
 
 Para realizar la práctica el alumno deberá tener instalado en su ordenador:
 - Herramienta GIT para gestión de repositorios [Github](https://git-scm.com/downloads)
-- Entorno de ejecución de javascript [NodeJS](https://nodejs.org/es/download/)
-- Base de datos NoSQL [MongoDB](https://www.mongodb.com/download-center/community)
+- Entorno de ejecución de javascript [NodeJS](https://nodejs.org/es/download/) version 16 o 18
+- Base de datos NoSQL [MongoDB](https://www.mongodb.com/download-center/community). Debe de poder ejecutar mongod y mongos
 
 ## 3. Descripción de la práctica
 
-En esta práctica el alumno aprenderá a configurar y a operar con un ReplicaSet de MongoDB para ofrecer a un servicio Web alta disponibilidad en términos de persistencia. El objetivo final de la práctica es ser capaz de desplegar de manera sencilla el siguiente escenario usando múltiples instancias de mongoDB que se ejecutarán en el mismo ordenador. A continuación se explica la función de cada módulo de la figura.
+En esta práctica el alumno aprenderá por un lado a configurar y a operar con un ReplicaSet de MongoDB para ofrecer a un servicio Web alta disponibilidad en términos de persistencia. Y por otro lado aprenderá como configurar un particionamiento para mejorar la eficiencia de almacenamiento y de busqueda de información. El objetivo final de la práctica es ser capaz de desplegar de manera sencilla el siguiente escenario usando múltiples instancias de mongoDB que se ejecutarán en el mismo ordenador. A continuación se explica la función de cada módulo de la figura.
 
-![](https://raw.githubusercontent.com/ging/nosql_replicacion_bdfi/master/img/diagrama.png)
+![](https://raw.githubusercontent.com/ging/nosql_practica5_sibd/master/img/arquitectura.png)
 
-- App Gestión de Pacientes: se trata del servidor Web desarrollado en la práctica correspondiente de la asignatura. El servidor incluido en este repositorio escucha peticiones en http://localhost:8001 y se conectará contra un replicaSet llamado my-mongo-set y formado por cuatro instancias de mongo corriendo en localhost:27001, localhost:27002,  localhost:27003 y localhost:27004. 
+- App Gestión de Pacientes: se trata del servidor Web desarrollado en la práctica relativa a ODMs correspondiente de la asignatura. El servidor incluido en este repositorio escucha peticiones en http://localhost:8001 y se conectará a través de un router de Mongodb, Mongo (en localhost:27006), con dos clúster que contienen información particionada y replicada de los pacientes. Para saber a que clúser se debe dirigir el router, contaremos con el localizador de MongoDB llamado Config Server.
 
-- Primary/Secondary: son los miembros del ReplicaSet de MongoDB. Cada uno de ellos se arrancara en el puerto especificado en el diagrama.
+- config_server: se trata de un clúster replicaSet conformado por una única instancia de mongo desplegada en localhost:27001.
+
+- shard_servers_1: se trata de un clúster replicaSet que contendrá parte de la información de los pacientes. Estará conformado por dos instancias de mongo: una primaria en localhost:27002 y otra secundaria en localhost:27003.
+
+- shard_servers_2: se trata de un clúster replicaSet que contendrá la otra parte de la información de los pacientes. Estará conformado por dos instancias de mongo: una primaria en localhost:27003 y otra secundaria en localhost:27004.
 
 ## 4. Descargar e instalar el código del proyecto
 
@@ -57,46 +61,69 @@ Crear 4 carpetas (fuera de la carpeta del proyecto) para que allí se almacenen 
     ```
     $ cd algunotrodirectorio
     $ mkdir data_patients
-    $ mkdir data_patients/data1 data_patients/data2 data_patients/data3 data_patients/data4
+    $ mkdir data_patients/config data_patients/shard1_1 data_patients/shard1_2 data_patients/shard2_1 data_patients/shard2_2
     ```
 
 
 ## 5. Tareas a realizar
 
+Antes comentar que en una situación real, cada instancia de mongo que ejecutaremos debe estar en un servidor separado, pero para nuestras pruebas vamos a hacer que las diferentes instancais de mongo se arranquen en la misma máquina pero en distintos puertos. Por otro lado, los comando que a continuación se exponen se ejecutan en Ubuntu. Si teneis otro Sistema Operativo, como Windows, para ejecutar mongod o mongos debeis abrir una PowerShell e ir al directorio donde teneis almacenado mongod.exe y mongos.exe. Además, deben indicar la ruta absoluta de donde se encuentra la carpeta data_patients, por ejemplo si el repositorio ha sido clonado en el escritorio la instrucción a ejecutar sería similar a esta: PS C:\Archivos de programa\MongoDB\Server\4.2\bin>.\mongod --port 27001 —dbpath C:\Users\usuarioX\Desktop\algunotrodirectorio\data_patients\shard1_1....
 
-1. Arrancar todos los servidores en modo replica usando mongod. En una situación real, cada servidor del conjunto réplica debe estar en un servidor separado, pero para nuestras pruebas vamos a hacer que los diferentes servidores se arranquen en la misma máquina. Para ello necesitaremos:
-    - Un directorio de datos por cada servidor de la réplica (creados en el anterior punto)
-    - Un puerto para cada servidor
-    - Indicar que se arranquen en modo replicaSet e indicando el id de dicho replica set.
+Se deben usar los mismos puertos que los mostrados en la figura. Si esta realizando la práctica desplegando instancias de Docker con Mongo asegurese de que ha realizado bien el mapeo de puertos entre el contenedor y el host.
 
-    En Ubuntu ejecutamos cada una de las siguientes instrucciones en un terminal distinto:
 
+1. En primer lugar arrancaremos y configuraremos el config server que contendrá la información acerca de a que partición dirigirse para obtener determinados datos de un paciente. Para ello, necesitamos:
+    - Un directorio de datos por cada servidor de la réplica (creado en la anterior sección)
+    - Un puerto para el servidor (indicado en la figura anteriormente mostrada)
+    - Indicar que se arranquen en modo configsvr y además en modo replicaSet, indicando el id de dicho replica set (config_servers).
+
+    En un terminal de Ubuntu, en el directorio que contiene la carpeta data_patients, ejecutamos la siguiente instrucción:
+     ```
+    mongod --configsvr --replSet config_servers --port 27001 --dbpath data_patients/config
     ```
-    mongod --port 27001 --replSet my-mongo-set --dbpath ./data_patients/data1 --oplogSize 50
-    mongod --port 27002 --replSet my-mongo-set --dbpath ./data_patients/data2 --oplogSize 50
-    mongod --port 27003 --replSet my-mongo-set --dbpath ./data_patients/data3 --oplogSize 50
-    mongod --port 27004 --replSet my-mongo-set --dbpath ./data_patients/data4 --oplogSize 50
-    ```
-    Si teneis otro Sistema Operativo, como Windows, para ejecutar mongod debeis abrir una PowerShell e ir al directorio donde teneis almacenado mongod.exe. Además, deben indicar la ruta absoluta de donde se encuentra la carpeta data_patients, por ejemplo si el repositorio ha sido clonado en el escritorio la instrucción a ejecutar sería similar a esta: PS C:\Archivos de programa\MongoDB\Server\4.2\bin> .\mongod --port 27001 --replSet my-mongo-set —dbpath C:\Users\usuarioX\Desktop\algunotrodirectorio\data_patients\data1 --oplogSize 50
-    
-2. Se creará la réplica, indicando que todos los servidores están en el mismo conjunto, para ello nos conectamos al servidor que va a actuar como primario:
-
+    Una vez arrancado, desde otro terminal, nos conectamos al servidor que va a actuar como primario
     ```
     mongo --host localhost:27001
     ```
+    Inicialice el replicaSet del config server como hemos visto en las trasparencias de clase, teniendo en cuenta que solo hay una instancia de mongo dentro del clúster y que debemos especificar que se trata de un config server.
 
-3. Configurar el replica set para que las 4 instancias que se levantaron anteriormente sean parte del replicaset my-mongo-set. Busque en las transparencias de clase como inicializar el replica set con varias intancias a la vez. Debe definir con prioridad igual a 900 al servidor principal ("localhost:27001") y a la cuarta instancia de mongodb ("localhost:27004") se debe configurar para que tenga una prioridad de 0 y que el tiempo de retardo de replicación esté limitado a 60 seg.
+2. A continuación, arrancaremos los clúster para almacenar la información particionada. Para ello, necesitamos:
+    - Cuatro directorios de datos para cada una de las instancias de mongo (creados en la anterior sección)
+    - Un puerto para cada servidor (indicado en la figura anteriormente mostrada)
+    - Indicar que se arranquen en modo replicaSet, indicando el id correspondiente para cada replica set (shard_servers_1 y shard_servers_2)
+    - Indicar que se arranquen en modo sharding 
 
-4. A continuación, en el terminal y dentro del directorio donde hemos clonado el código de la práctica, ejecutamos los seeders para que añadir una serie de pacientes por defecto a nuestro replicaSet:
+    En cuatro terminales de Ubuntu, en el directorio que contiene la carpeta data_patients, ejecutamos en cada uno las siguiente instrucción:
+    ```
+    mongod  --shardsvr --replSet shard_servers_1 --port 27002 --dbpath data_patients/shard1_1 --oplogSize 50
+    mongod  --shardsvr --replSet shard_servers_1 --port 27003 --dbpath data_patients/shard1_2 --oplogSize 50
+    mongod  --shardsvr --replSet shard_servers_2 --port 27004 --dbpath data_patients/shard2_1 --oplogSize 50
+    mongod  --shardsvr --replSet shard_servers_2 --port 27005 --dbpath data_patients/shard2_2 --oplogSize 50
+    ```
+    Una vez arrancados debe incializr los replicaSet para cada uno de los shards. Para ello, desde otro terminal nos conectaremos (como en el paso anterior) en primer lugar a la shell de mongo de localhost:27002 y después a localhost:27004 para configurar en cada uno el replicaSet correspondiente. El primero de ellos estará compuesto de localhost:27002 y localhost:27003 donde localhost:27002 debe tener una prioridad de 900 y localhost:27003 con prioridad de 700. El segundo de ellos estará compuesto de localhost:27004 y localhost:27005 donde localhost:27004 debe tener una prioridad de 600 y localhost:27005 con prioridad de 300.
+
+
+3. Una vez configurado los clúster de particionamiento, arrancaremos el router Mongos. Para ello, necesitamos:
+    - Indicar el host y puerto donde se arranca el router (indicado en la figura anteriormente mostrada)
+    - Indicar el replicaSet correspondiente a los config servers.
+    ```
+    mongos --configdb config_servers/localhost:27001 --port 27004
+    ```
+
+4. En este paso, debe conectarse al router Mongos y añadir cada uno de los shards como se ha visto en las trasparencias de clase. Una vez realizado, cree un base de datos llamada "bio_bbdd" y una colección dentro de ella llamada "patients". Habilite el sharding en esa base de datos y defina una clave de particionamiento hashed para el atributo "dni" (el cual se creará a posteriori). IMPORTANTE: se debe hacer este paso obligatoriamente antes que el siguiente, ya que de otra manera el particionamiento no se hará efectivo.
+
+
+
+5. En este momento, debería de tener bien configurado las particiones. Puede ejecutar algunos comandos vistos en clase para ver el estado. A continuación, en el terminal y dentro del directorio donde hemos clonado el código de la práctica, ejecutamos los seeders para que añadir una serie de pacientes por defecto a nuestro replicaSet:
 
     ```
     npm run seed
     ```
     
     
-5. Compruebe que los pacientes se han guardado en cada una de los Mongos desplegados accediendo a la shell de cada uno de ellos y ejecute las operaciones que considere. Recuerde que, para poder rejecutar operaciones de lectura dentro de la shell de mongo de los nodos secundarios, debe ejecutar rs.slaveOk() previamente (o si esta usando Mongo en su versión 5 debe ejecutar rs.secondaryOk() ).
+5. Compruebe que los pacientes se han guardado en cada una de los Mongos desplegados, de forma particionada, accediendo a la shell de cada uno de ellos y ejecute las operaciones que considere. Recuerde que, para poder rejecutar operaciones de lectura dentro de la shell de mongo de los nodos secundarios, debe ejecutar rs.slaveOk() previamente (o si esta usando Mongo en su versión 5 debe ejecutar rs.secondaryOk() ).
 
-6. Una vez comprendido el funcionamiento del escenario debe establecerse la conexión a la réplica desde la aplicación. Para ello, el alumnos debe modificar la conexión en el fichero rest_server.js e incluir los valores correspondientes para que la aplicación se conecte a la réplica “my-mongo-set” en vez de a una única instancia de Mongo. Revise las transparencias de clase de ReplicaSet para ver como hacerlo con Mongoose.
+6. Una vez comprendido el funcionamiento del escenario debe establecerse la conexión a la réplica desde la aplicación. Para ello, el alumnos debe modificar la conexión en el fichero rest_server.js e incluir los valores correspondientes para que la aplicación se conecte al router Mongos y a la base de datos antes creada. Revise las transparencias de clase de ReplicaSet y Sharding para ver como hacerlo con Mongoose.
 
 7. Ejecutar el servidor de la aplicación web de gestión de pacientes
 
@@ -106,9 +133,9 @@ Crear 4 carpetas (fuera de la carpeta del proyecto) para que allí se almacenen 
 
 8. Insertar un nuevo paciente cuyo DNI sea el token del moodle del alumno por medio de la aplicación web de gestión de pacientes.
 
-9. Verificar que los datos se han escrito tanto en el primario como en los secundarios y que además se respeta el delay en el servidor de mongo "localhost:27004”
+9. Verificar que los datos se han escrito solamente en uno de los shards y que además se respeta el delay en el servidor de mongo que actúa como secundario dentro de ese shard.
 
-10. Sin detener la ejecución de las 4 instancias de mongo. Añadir un una quinta instancia de mongo al replicaset(localhost:27005). Esta Instancia debe estar configurado como arbiterOnly. Nuevamente cree un directorio especifico para esta instancia (Ej: data_patients/data5), arranque una nueva instancia con mongod en otro terminal y consulte las transparencias de clase para ver como incluir un arbitro en el replicaSet.
+10. Sin detener la ejecución de las instancias de mongo. Añadir un una nueva instancia de mongo (localhost:27007) al primer shard (shard_servers_1). Esta Instancia debe estar configurado como arbiterOnly. Nuevamente cree un directorio especifico para esta instancia (Ej: data_patients/shard1_3), arranque una nueva instancia con mongod en otro terminal y consulte las transparencias de clase para ver como incluir un arbitro en el replicaSet.
 
 ## 6. Prueba de la práctica 
 
@@ -116,10 +143,9 @@ Para ayudar al desarrollo, se provee una herramienta de autocorrección que prue
 
 La herramienta de autocorrección preguntará por el correo del alumno y el token de Moodle. En el enlace [https://www.npmjs.com/package/autocorector](https://www.npmjs.com/package/autocorector) se proveen instrucciones para encontrar dicho token.
 
-Para instalar y hacer uso de la [herramienta de autocorrección](https://www.npmjs.com/package/autocorector) en el ordenador local, ejecuta los siguientes comandos en el directorio del proyecto:
 
 ```
-$ autocorector
+$ npx autocorector
 ```
 
 Se puede pasar la herramienta autocorector tantas veces como se desee sin ninguna repercusión en la calificación.
@@ -128,7 +154,7 @@ Se puede pasar la herramienta autocorector tantas veces como se desee sin ningun
 
 Una vez satisfecho con su calificación, el alumno puede subir su entrega a Moodle con el siguiente comando:
 ```
-$ autocorector --upload
+$ npx autocorector --upload
 ```
 
 El alumno podrá subir al Moodle la entrega tantas veces como desee pero se quedará registrada solo la última subida.

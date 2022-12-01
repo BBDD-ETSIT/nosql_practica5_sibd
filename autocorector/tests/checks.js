@@ -12,8 +12,11 @@ const mongoose = require('mongoose');
 let error_critical = null;
 let testPatient;
 
-mongoose.connect("mongodb://localhost:27001,localhost:27002,localhost:27003,localhost:27004/bio_bbdd?replicaSet=my-mongo-set");
-const conn = mongoose.createConnection("mongodb://localhost:27001/admin");
+mongoose.connect("mongodb://localhost:27006/bio_bbdd");
+const conn = mongoose.createConnection("mongodb://localhost:27006/admin");
+
+// const conn =  mongoose.createConnection("mongodb://localhost:27006/bio_bbdd");  --> para shardinStatus
+// const conn =  mongoose.createConnection("mongodb://localhost:27006/admin"); --> para replicationstatus
 
 beforeEach( async () => {
 	const data = [
