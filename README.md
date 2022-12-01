@@ -23,7 +23,7 @@ Para realizar la práctica el alumno deberá tener instalado en su ordenador:
 
 En esta práctica el alumno aprenderá por un lado a configurar y a operar con un ReplicaSet de MongoDB para ofrecer a un servicio Web alta disponibilidad en términos de persistencia. Y por otro lado aprenderá como configurar un particionamiento para mejorar la eficiencia de almacenamiento y de busqueda de información. El objetivo final de la práctica es ser capaz de desplegar de manera sencilla el siguiente escenario usando múltiples instancias de mongoDB que se ejecutarán en el mismo ordenador. A continuación se explica la función de cada módulo de la figura.
 
-![](https://raw.githubusercontent.com/ging/nosql_practica5_sibd/master/img/arquitectura.png)
+![](https://raw.githubusercontent.com/ging/nosql_practica5_sibd/main/img/arquitectura.png)
 
 - App Gestión de Pacientes: se trata del servidor Web desarrollado en la práctica relativa a ODMs correspondiente de la asignatura. El servidor incluido en este repositorio escucha peticiones en http://localhost:8001 y se conectará a través de un router de Mongodb, Mongo (en localhost:27006), con dos clúster que contienen información particionada y replicada de los pacientes. Para saber a que clúser se debe dirigir el router, contaremos con el localizador de MongoDB llamado Config Server.
 
