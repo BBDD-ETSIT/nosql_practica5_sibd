@@ -4,7 +4,7 @@
 	"description": "autoCOREctor de la asignatura de BBDD (UPM)",
 	"disableHashCheck": true,
 	"capturesFolder": "miscapturas",
-	"capturesNumber": 3,    
+	"capturesNumber": 1,    
 	"keywords": [
 			"BBDD",
 			"NoSQL",

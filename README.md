@@ -64,7 +64,6 @@ Crear 4 carpetas (fuera de la carpeta del proyecto) para que allí se almacenen 
     $ mkdir data_patients/config data_patients/shard1_1 data_patients/shard1_2 data_patients/shard2_1 data_patients/shard2_2
     ```
 
-
 ## 5. Tareas a realizar
 
 Antes comentar que en una situación real, cada instancia de mongo que ejecutaremos debe estar en un servidor separado, pero para nuestras pruebas vamos a hacer que las diferentes instancais de mongo se arranquen en la misma máquina pero en distintos puertos. Por otro lado, los comando que a continuación se exponen se ejecutan en Ubuntu. Si teneis otro Sistema Operativo, como Windows, para ejecutar mongod o mongos debeis abrir una PowerShell e ir al directorio donde teneis almacenado mongod.exe y mongos.exe. Además, deben indicar la ruta absoluta de donde se encuentra la carpeta data_patients, por ejemplo si el repositorio ha sido clonado en el escritorio la instrucción a ejecutar sería similar a esta: PS C:\Archivos de programa\MongoDB\Server\4.2\bin>.\mongod --port 27001 —dbpath C:\Users\usuarioX\Desktop\algunotrodirectorio\data_patients\shard1_1....
@@ -114,29 +113,27 @@ Por último, si **cree que ha realizado alguna configuración mal, se recomienda
     ```
     
     
-5. Compruebe que los pacientes se han guardado en cada una de los Mongos desplegados, de forma particionada, accediendo a la shell de cada uno de ellos y ejecute las operaciones que considere. Recuerde que, para poder rejecutar operaciones de lectura dentro de la shell de mongo de los nodos secundarios, debe ejecutar rs.slaveOk() previamente (o si esta usando Mongo en su versión 5 debe ejecutar rs.secondaryOk() ).
+6. Compruebe que los pacientes se han guardado en cada una de los Mongo desplegados, de forma particionada, accediendo a la shell de cada uno de ellos y ejecute las operaciones que considere. Recuerde que, para poder rejecutar operaciones de lectura dentro de la shell de mongo de los nodos secundarios, debe ejecutar rs.slaveOk() previamente (o si esta usando Mongo en su versión 5 debe ejecutar rs.secondaryOk() ). Compruebe también desde el router Mongos ejecutando desde la base de dadtos bio_bbdd la orden db.patients.getShardDistribution(). Deberá ver que los pacientes se han distribuido de forma correcta en cada un o de los clúser de sharding. En este punto, cree la carpeta "miscapturas" dentro del directorio de la práctica que se ha clonado de github. Realice una captura de pantalla de la salida de dicho comando y guarde la imagen en la carpeta que acaba de crear. Esta captura es obligatoria para poder realizar la evaluación y entrega de la práctica.
 
-6. Una vez comprendido el funcionamiento del escenario debe establecerse la conexión a la réplica desde la aplicación. Para ello, el alumnos debe modificar la conexión en el fichero controller/patient.js e incluir los valores correspondientes para que la aplicación se conecte al router Mongos y a la base de datos antes creada. Revise las transparencias de clase de ReplicaSet y Sharding para ver como hacerlo con Mongoose.
+7. Una vez comprendido el funcionamiento del escenario debe establecerse la conexión a la réplica desde la aplicación. Para ello, el alumnos debe modificar la conexión en el fichero controller/patient.js e incluir los valores correspondientes para que la aplicación se conecte al router Mongos y a la base de datos antes creada. Revise las transparencias de clase de ReplicaSet y Sharding para ver como hacerlo con Mongoose.
 
-7. Ejecutar el servidor de la aplicación web de gestión de pacientes
+8. Ejecutar el servidor de la aplicación web de gestión de pacientes
 
     ```
     npm start
     ```
 
-8. Insertar un nuevo paciente cuyo DNI sea el token del moodle del alumno por medio de la aplicación web de gestión de pacientes.
+9. Insertar un nuevo paciente cuyo DNI sea el token del moodle del alumno por medio de la aplicación web de gestión de pacientes.
 
-9. Verificar que los datos se han escrito solamente en uno de los shards y que además se respeta el delay en el servidor de mongo que actúa como secundario dentro de ese shard.
+10. Verificar que los datos se han escrito solamente en uno de los shards y que además se respeta el delay en el servidor de mongo que actúa como secundario dentro de ese shard.
 
-10. Sin detener la ejecución de las instancias de mongo. Añadir un una nueva instancia de mongo (localhost:27007) al primer shard (shard_servers_1). Esta Instancia debe estar configurado como arbiterOnly. Nuevamente cree un directorio especifico para esta instancia (Ej: data_patients/shard1_3), arranque una nueva instancia con mongod en otro terminal y consulte las transparencias de clase para ver como incluir un arbitro en el replicaSet.
-
+11. Sin detener la ejecución de las instancias de mongo. Añadir un una nueva instancia de mongo (localhost:27007) al primer shard (shard_servers_1). Esta Instancia debe estar configurado como arbiterOnly. Nuevamente cree un directorio especifico para esta instancia (Ej: data_patients/shard1_3), arranque una nueva instancia con mongod en otro terminal y consulte las transparencias de clase para ver como incluir un arbitro en el replicaSet.
 
 ## 6. Prueba de la práctica 
 
 Para ayudar al desarrollo, se provee una herramienta de autocorrección que prueba las distintas funcionalidades que se piden en el enunciado.
 
 La herramienta de autocorrección preguntará por el correo del alumno y el token de Moodle. En el enlace [https://www.npmjs.com/package/autocorector](https://www.npmjs.com/package/autocorector) se proveen instrucciones para encontrar dicho token.
-
 
 ```
 $ npx autocorector
