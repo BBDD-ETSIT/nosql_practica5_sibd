@@ -210,7 +210,7 @@ describe("BBDD Tests", function () {
             this.msg_ok = "The config Server is up and running";
             this.msg_err = "The config server is not running or is not enable on port 27001";
 
-		    connConfigServer = mongoose.createConnection("mongodb://localhost:27001/admin",{ serverSelectionTimeoutMS: 5000});
+		    connConfigServer = mongoose.createConnection("mongodb://127.0.0.1:27001/admin",{ serverSelectionTimeoutMS: 5000});
 		    connConfigServer.on('error', (err) => {
 		    	if (err.message && err.message.includes('ECONNREFUSED')) {
 		    		this.msg_err = "The config server is not running or is not enable on port 27001";
@@ -248,15 +248,15 @@ describe("BBDD Tests", function () {
 	});
 
 	describe('Shard Cluster 1', function() {
-        it('localhost:27002 should be up and running', function(done) {
+        it('127.0.0.1:27002 should be up and running', function(done) {
             this.score = 0.5;
-            this.msg_ok = "localhost:27002 is up and running";
-            this.msg_err = "localhost:27002 is not running or is not enable on port 27002";
+            this.msg_ok = "127.0.0.1:27002 is up and running";
+            this.msg_err = "127.0.0.1:27002 is not running or is not enable on port 27002";
 
-		    connShard1_1 = mongoose.createConnection("mongodb://localhost:27002/admin",{ serverSelectionTimeoutMS: 5000});
+		    connShard1_1 = mongoose.createConnection("mongodb://127.0.0.1:27002/admin",{ serverSelectionTimeoutMS: 5000});
 		    connShard1_1.on('error', (err) => {
 		    	if (err.message && err.message.includes('ECONNREFUSED')) {
-		    		this.msg_err = "localhost:27002 is not running or is not enable on port 27002";
+		    		this.msg_err = "127.0.0.1:27002 is not running or is not enable on port 27002";
 		    	}
 		    	if (err.message && err.message.includes('Server selection')) {
 		    		this.msg_err = "The replicaSet is probably not initialized";
@@ -268,15 +268,15 @@ describe("BBDD Tests", function () {
     });
 
     describe('Shard Cluster 1', function() {
-        it('localhost:27003 should be up and running', function(done) {
+        it('127.0.0.1:27003 should be up and running', function(done) {
             this.score = 0.5;
-            this.msg_ok = "localhost:27003 is up and running";
-            this.msg_err = "localhost:27003 is not running or is not enable on port 27003";
+            this.msg_ok = "127.0.0.1:27003 is up and running";
+            this.msg_err = "127.0.0.1:27003 is not running or is not enable on port 27003";
 
-		    connShard1_2 = mongoose.createConnection("mongodb://localhost:27003/admin",{ serverSelectionTimeoutMS: 5000});
+		    connShard1_2 = mongoose.createConnection("mongodb://127.0.0.1:27003/admin",{ serverSelectionTimeoutMS: 5000});
 		    connShard1_2.on('error', (err) => {
 		    	if (err.message && err.message.includes('ECONNREFUSED')) {
-		    		this.msg_err = "localhost:27003 is not running or is not enable on port 27003";
+		    		this.msg_err = "127.0.0.1:27003 is not running or is not enable on port 27003";
 		    	}
 		    	if (err.message && err.message.includes('Server selection')) {
 		    		this.msg_err = "The replicaSet is probably not initialized";
@@ -296,49 +296,49 @@ describe("BBDD Tests", function () {
 	    	let result_line_opts_1 = await connShard1_1.db.command({"getCmdLineOpts":1 });
 	    	let result_line_opts_2 = await connShard1_2.db.command({"getCmdLineOpts":1 });
 
-	    	this.msg_err = "The localhost:27002 is not started on replica mode";
+	    	this.msg_err = "The 127.0.0.1:27002 is not started on replica mode";
 		    expect(result_line_opts_1.argv).to.include('--replSet');
 
-	    	this.msg_err = "The localhost:27002 is not started on shard mode";
+	    	this.msg_err = "The 127.0.0.1:27002 is not started on shard mode";
 	    	expect(result_line_opts_1.argv).to.include('--shardsvr');
 
-	    	this.msg_err = "The localhost:27003 is not started on replica mode";
+	    	this.msg_err = "The 127.0.0.1:27003 is not started on replica mode";
 	    	expect(result_line_opts_2.argv).to.include('--replSet');
 
-	    	this.msg_err = "The localhost:27003 is not started on shard mode";
+	    	this.msg_err = "The 127.0.0.1:27003 is not started on shard mode";
 	    	expect(result_line_opts_2.argv).to.include('--shardsvr');
 
 	    	result_status = await connShard1_1.db.command({"replSetGetStatus":1 });
 
 	    	let mem1 = result_status.members.filter(mem => mem.name.includes('27002'))[0];
-	    	this.msg_err = "The localhost:27002 should be PRIMARY";
+	    	this.msg_err = "The 127.0.0.1:27002 should be PRIMARY";
 	    	should.equal(mem1.stateStr, 'PRIMARY');
 	    	let mem2 = result_status.members.filter(mem => mem.name.includes('27003'))[0];
-	    	this.msg_err = "The localhost:27003 should be SECONDARY";
+	    	this.msg_err = "The 127.0.0.1:27003 should be SECONDARY";
 	    	should.equal(mem2.stateStr, 'SECONDARY');
 
 	    	result_config = await connShard1_1.db.command({"replSetGetConfig":1 });
 
-	    	this.msg_err = "The localhost:27002 should have priority 900";
+	    	this.msg_err = "The 127.0.0.1:27002 should have priority 900";
 	    	mem1 = result_config.config.members.filter(mem => mem.host.includes('27002'))[0];
 	    	should.equal(mem1.priority, 900);
 
-	    	this.msg_err = "The localhost:27003 should have priority 700";
+	    	this.msg_err = "The 127.0.0.1:27003 should have priority 700";
 	    	mem2 = result_config.config.members.filter(mem => mem.host.includes('27003'))[0];
 	    	should.equal(mem2.priority, 700);
 		})
 	});
 
 	describe('Shard Cluster 2', function() {
-        it('localhost:27004 should be up and running', function(done) {
+        it('127.0.0.1:27004 should be up and running', function(done) {
             this.score = 0.5;
-            this.msg_ok = "localhost:27004 is up and running";
-            this.msg_err = "localhost:27004 is not running or is not enable on port 27004";
+            this.msg_ok = "127.0.0.1:27004 is up and running";
+            this.msg_err = "127.0.0.1:27004 is not running or is not enable on port 27004";
 
-		    connShard2_1 = mongoose.createConnection("mongodb://localhost:27004/admin",{ serverSelectionTimeoutMS: 5000});
+		    connShard2_1 = mongoose.createConnection("mongodb://127.0.0.1:27004/admin",{ serverSelectionTimeoutMS: 5000});
 		    connShard2_1.on('error', (err) => {
 		    	if (err.message && err.message.includes('ECONNREFUSED')) {
-		    		this.msg_err = "localhost:27004 is not running or is not enable on port 27004";
+		    		this.msg_err = "127.0.0.1:27004 is not running or is not enable on port 27004";
 		    	}
 		    	if (err.message && err.message.includes('Server selection')) {
 		    		this.msg_err = "The replicaSet is probably not initialized";
@@ -350,15 +350,15 @@ describe("BBDD Tests", function () {
     });
 
     describe('Shard Cluster 2', function() {
-        it('localhost:27005 should be up and running', function(done) {
+        it('127.0.0.1:27005 should be up and running', function(done) {
             this.score = 0.5;
-            this.msg_ok = "localhost:27005 is up and running";
-            this.msg_err = "localhost:27005 is not running or is not enable on port 27005";
+            this.msg_ok = "127.0.0.1:27005 is up and running";
+            this.msg_err = "127.0.0.1:27005 is not running or is not enable on port 27005";
 
-		    connShard2_2 = mongoose.createConnection("mongodb://localhost:27005/admin",{ serverSelectionTimeoutMS: 5000});
+		    connShard2_2 = mongoose.createConnection("mongodb://127.0.0.1:27005/admin",{ serverSelectionTimeoutMS: 5000});
 		    connShard2_2.on('error', (err) => {
 		    	if (err.message && err.message.includes('ECONNREFUSED')) {
-		    		this.msg_err = "localhost:27005 is not running or is not enable on port 27005";
+		    		this.msg_err = "127.0.0.1:27005 is not running or is not enable on port 27005";
 		    	}
 		    	if (err.message && err.message.includes('Server selection')) {
 		    		this.msg_err = "The replicaSet is probably not initialized";
@@ -378,49 +378,49 @@ describe("BBDD Tests", function () {
 	    	let result_line_opts_1 = await connShard2_1.db.command({"getCmdLineOpts":1 });
 	    	let result_line_opts_2 = await connShard2_2.db.command({"getCmdLineOpts":1 });
 
-	    	this.msg_err = "The localhost:27004 is not started on replica mode";
+	    	this.msg_err = "The 127.0.0.1:27004 is not started on replica mode";
 		    expect(result_line_opts_1.argv).to.include('--replSet');
 
-	    	this.msg_err = "The localhost:27004 is not started on shard mode";
+	    	this.msg_err = "The 127.0.0.1:27004 is not started on shard mode";
 	    	expect(result_line_opts_1.argv).to.include('--shardsvr');
 
-	    	this.msg_err = "The localhost:27005 is not started on replica mode";
+	    	this.msg_err = "The 127.0.0.1:27005 is not started on replica mode";
 	    	expect(result_line_opts_2.argv).to.include('--replSet');
 
-	    	this.msg_err = "The localhost:27005 is not started on shard mode";
+	    	this.msg_err = "The 127.0.0.1:27005 is not started on shard mode";
 	    	expect(result_line_opts_2.argv).to.include('--shardsvr');
 
 	    	result_status = await connShard2_1.db.command({"replSetGetStatus":1 });
 
 	    	let mem1 = result_status.members.filter(mem => mem.name.includes('27004'))[0];
-	    	this.msg_err = "The localhost:27004 should be PRIMARY";
+	    	this.msg_err = "The 127.0.0.1:27004 should be PRIMARY";
 	    	should.equal(mem1.stateStr, 'PRIMARY');
 	    	let mem2 = result_status.members.filter(mem => mem.name.includes('27005'))[0];
-	    	this.msg_err = "The localhost:27005 should be SECONDARY";
+	    	this.msg_err = "The 127.0.0.1:27005 should be SECONDARY";
 	    	should.equal(mem2.stateStr, 'SECONDARY');
 
 	    	result_config = await connShard2_1.db.command({"replSetGetConfig":1 });
 
-	    	this.msg_err = "The localhost:27004 should have priority 600";
+	    	this.msg_err = "The 127.0.0.1:27004 should have priority 600";
 	    	mem1 = result_config.config.members.filter(mem => mem.host.includes('27004'))[0];
 	    	should.equal(mem1.priority, 600);
 
-	    	this.msg_err = "The localhost:27005 should have priority 300";
+	    	this.msg_err = "The 127.0.0.1:27005 should have priority 300";
 	    	mem2 = result_config.config.members.filter(mem => mem.host.includes('27005'))[0];
 	    	should.equal(mem2.priority, 300);
 		})
 	});
 
 	describe('Mongos', function() {
-        it('localhost:27006 should be up and running', function(done) {
+        it('127.0.0.1:27006 should be up and running', function(done) {
             this.score = 0.5;
-            this.msg_ok = "localhost:27006 is up and running";
-            this.msg_err = "localhost:27006 is not running or is not enable on port 27006";
+            this.msg_ok = "127.0.0.1:27006 is up and running";
+            this.msg_err = "127.0.0.1:27006 is not running or is not enable on port 27006";
 
-		    connMongos = mongoose.createConnection("mongodb://localhost:27006/admin",{ serverSelectionTimeoutMS: 5000});
+		    connMongos = mongoose.createConnection("mongodb://127.0.0.1:27006/admin",{ serverSelectionTimeoutMS: 5000});
 		    connMongos.on('error', (err) => {
 		    	if (err.message && err.message.includes('ECONNREFUSED')) {
-		    		this.msg_err = "localhost:27006 is not running or is not enable on port 27006";
+		    		this.msg_err = "127.0.0.1:27006 is not running or is not enable on port 27006";
 		    	}
 		    	done(new Error("Error on config server"))
 			});
@@ -446,11 +446,11 @@ describe("BBDD Tests", function () {
 		    this.msg_err = "There should be included two shard clusters into the system";
 		    should.equal(Object.keys(results_sharding_status.raw).length, 2);
 
-		    this.msg_err = "There shard cluster (localhost:27002 and localhost:27003) is not well added";
+		    this.msg_err = "There shard cluster (127.0.0.1:27002 and 127.0.0.1:27003) is not well added";
 		    mem1 = Object.keys(results_sharding_status.raw).filter(mem => mem.includes('27002') && mem.includes('27003'))[0];
 		    assert.notEqual(mem1, null);
 
-		    this.msg_err = "There shard cluster (localhost:27004 and localhost:27005) is not well added";
+		    this.msg_err = "There shard cluster (127.0.0.1:27004 and 127.0.0.1:27005) is not well added";
 		    mem2 = Object.keys(results_sharding_status.raw).filter(mem => mem.includes('27004') && mem.includes('27005'))[0];
 		    assert.notEqual(mem2, null);
 		})
@@ -462,7 +462,7 @@ describe("BBDD Tests", function () {
             this.msg_ok = "The database is created";
             this.msg_err = "The bio_bbdd database is probably not created";
 
-            connMongosBioBbdd = mongoose.createConnection("mongodb://localhost:27006/bio_bbdd",{ serverSelectionTimeoutMS: 5000});
+            connMongosBioBbdd = mongoose.createConnection("mongodb://127.0.0.1:27006/bio_bbdd",{ serverSelectionTimeoutMS: 5000});
             connMongosBioBbdd.on('error', (err) => {
 		    	done(new Error("Error on config server"))
 			});
