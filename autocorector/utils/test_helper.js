@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 //tell mongoose to use es6 implementation of promises
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/bio_bbdd');
+
 
 
 // Close connection
@@ -9,7 +9,7 @@ before( (done) => {
 	console.log('--------------------------')
 	console.log('--> CONNECTING WITH MONGODB...')
 	mongoose.connection
-	    .once('open', function() { 
+	    .once('open', function() {
 	    	console.log('  --> CONNECTED!')
 	    	console.log('--------------------------')
 	    	done()
@@ -19,6 +19,7 @@ before( (done) => {
 	        console.log('--------------------------')
 	        done()
 	    });
+	mongoose.connect('mongodb://127.0.0.1/bio_bbdd');
 });
 
 //Called hooks which runs before something.
