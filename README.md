@@ -125,7 +125,7 @@ Por último, si **cree que ha realizado alguna configuración mal, se recomienda
 
 9. Insertar un nuevo paciente cuyo DNI sea el token del moodle del alumno por medio de la aplicación web de gestión de pacientes.
 
-10. Verificar que los datos se han escrito solamente en uno de los shards y que además se respeta el delay en el servidor de mongo que actúa como secundario dentro de ese shard.
+10. Verificar que los datos se han escrito solamente en uno de los shards.
 
 11. Sin detener la ejecución de las instancias de mongo. Añadir un una nueva instancia de mongo (localhost:27007) al primer shard (shard_servers_1). Esta Instancia debe estar configurado como arbiterOnly. Nuevamente cree un directorio especifico para esta instancia (Ej: data_patients/shard1_3), arranque una nueva instancia con mongod en otro terminal y consulte las transparencias de clase para ver como incluir un arbitro en el replicaSet. Para poder añadir el árbitro, debe primero habilitar la edición cambios en el shard cluster. Para ello, conectese al router mongos y ejecute la siguiente sentencia:
 
