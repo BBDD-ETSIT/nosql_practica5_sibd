@@ -81,7 +81,7 @@ Por último, si **cree que ha realizado alguna configuración mal, se recomienda
 
     Una vez arrancado, desde otro terminal, nos conectamos al servidor que va a actuar como primario
     ```
-    mongo --host localhost:27001
+    mongosh --host localhost:27001
     ```
     Inicialice el replicaSet del config server como hemos visto en las trasparencias de clase, teniendo en cuenta que solo hay una instancia de mongo dentro del clúster y que debemos especificar que se trata de un config server.
 
@@ -127,7 +127,16 @@ Por último, si **cree que ha realizado alguna configuración mal, se recomienda
 
 10. Verificar que los datos se han escrito solamente en uno de los shards y que además se respeta el delay en el servidor de mongo que actúa como secundario dentro de ese shard.
 
-11. Sin detener la ejecución de las instancias de mongo. Añadir un una nueva instancia de mongo (localhost:27007) al primer shard (shard_servers_1). Esta Instancia debe estar configurado como arbiterOnly. Nuevamente cree un directorio especifico para esta instancia (Ej: data_patients/shard1_3), arranque una nueva instancia con mongod en otro terminal y consulte las transparencias de clase para ver como incluir un arbitro en el replicaSet.
+11. Sin detener la ejecución de las instancias de mongo. Añadir un una nueva instancia de mongo (localhost:27007) al primer shard (shard_servers_1). Esta Instancia debe estar configurado como arbiterOnly. Nuevamente cree un directorio especifico para esta instancia (Ej: data_patients/shard1_3), arranque una nueva instancia con mongod en otro terminal y consulte las transparencias de clase para ver como incluir un arbitro en el replicaSet. Para poder añadir el árbitro, debe primero habilitar la edición cambios en el shard cluster. Para ello, conectese al router mongos y ejecute la siguiente sentencia:
+
+    ```
+    db.adminCommand(
+        {
+            setDefaultRWConcern : 1,
+            defaultWriteConcern: { w: 1 },
+        }
+    )
+    ```
 
 ## 6. Prueba de la práctica 
 
