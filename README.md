@@ -42,7 +42,7 @@ El proyecto debe clonarse en el ordenador desde el que se está trabajando con:
     ```
     $ git clone https://github.com/BBDD-ETSIT/nosql_practica5_sibd
     ```
-
+    
 y entrar en el directorio de trabajo
 
     ```
@@ -102,8 +102,12 @@ Por último, si **cree que ha realizado alguna configuración mal, se recomienda
 
     En un terminal de ubuntu, ejecutar la orden con mongos incluyendo lo anterior mencionado.
 
-4. En este paso, debe conectarse al router Mongos y añadir cada uno de los shards como se ha visto en las trasparencias de clase. Una vez realizado, cree un base de datos llamada "bio_bbdd" y una colección dentro de ella llamada "patients". Habilite el sharding en esa base de datos y defina una clave de particionamiento hashed para el atributo "dni" (el cual se creará a posteriori). IMPORTANTE: se debe hacer este paso obligatoriamente antes que el siguiente, ya que de otra manera el particionamiento no se hará efectivo.
-
+4. En este paso, debe conectarse al router Mongos y añadir cada uno de los shards como se ha visto en las trasparencias de clase. Una vez realizado, cree un base de datos llamada "bio_bbdd" y una colección dentro de ella llamada "patients" con las órdenes.
+    ```
+    use bio_bbdd
+    db.createCollection("patients")
+    ```
+    Habilite el sharding en esa base de datos y defina una clave de particionamiento hashed para el atributo "dni" (el cual se creará a posteriori). IMPORTANTE: se debe hacer este paso obligatoriamente antes que el siguiente, ya que de otra manera el particionamiento      no se hará efectivo.
 
 
 5. En este momento, debería de tener bien configurado las particiones. Puede ejecutar algunos comandos vistos en clase para ver el estado. A continuación, en el terminal y dentro del directorio donde hemos clonado el código de la práctica, ejecutamos los seeders para que añadir una serie de pacientes por defecto a nuestro replicaSet:
