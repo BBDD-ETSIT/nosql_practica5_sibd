@@ -42,7 +42,7 @@ El proyecto debe clonarse en el ordenador desde el que se está trabajando con:
     ```
     $ git clone https://github.com/BBDD-ETSIT/nosql_practica5_sibd
     ```
-
+    
 y entrar en el directorio de trabajo
 
     ```
@@ -66,9 +66,9 @@ Crear 4 carpetas (fuera de la carpeta del proyecto) para que allí se almacenen 
 
 ## 5. Tareas a realizar
 
-Antes comentar que en una situación real, cada instancia de mongo que ejecutaremos debe estar en un servidor separado, pero para nuestras pruebas vamos a hacer que las diferentes instancais de mongo se arranquen en la misma máquina pero en distintos puertos. Por otro lado, los comando que a continuación se exponen se ejecutan en Ubuntu. Si teneis otro Sistema Operativo, como Windows, para ejecutar mongod o mongos debeis abrir una PowerShell e ir al directorio donde teneis almacenado mongod.exe y mongos.exe. Además, deben indicar la ruta absoluta de donde se encuentra la carpeta data_patients, por ejemplo si el repositorio ha sido clonado en el escritorio la instrucción a ejecutar sería similar a esta: PS C:\Archivos de programa\MongoDB\Server\4.2\bin>.\mongod --port 27001 —dbpath C:\Users\usuarioX\Desktop\algunotrodirectorio\data_patients\shard1_1....
+Antes comentar que en una situación real, cada instancia de mongo que ejecutaremos debería estar en un servidor separado. Pero para nuestras pruebas, y por faciltiar la práctica, vamos a hacer que las diferentes instancias de mongo se arranquen en la misma máquina pero en distintos puertos. Por otro lado, los comandos que a continuación se exponen se ejecutan en Ubuntu. Si teneis otro Sistema Operativo, como Windows, para ejecutar mongod o mongos debeis abrir una PowerShell e ir al directorio donde teneis almacenado mongod.exe y mongos.exe. Además, se debe indicar la ruta absoluta de la carpeta data_patients. Por ejemplo, si el repositorio ha sido clonado en el escritorio, la instrucción a ejecutar sería similar a esta: PS C:\Archivos de programa\MongoDB\Server\4.2\bin>.\mongod --port 27001 —dbpath C:\Users\usuarioX\Desktop\algunotrodirectorio\data_patients\shard1_1....
 
-Se deben usar los mismos puertos que los mostrados en la figura. Si esta realizando la práctica desplegando instancias de Docker con Mongo asegurese de que ha realizado bien el mapeo de puertos entre el contenedor y el host. Por otro lado, se debe arrancar Mongo sin ningún tipo de autenticación ya que el autocorector se conecta a los servidores para realizar los tests sin usar ningún tipo de usuario/contraseña.
+Se deben usar los mismos puertos que los mostrados en la figura. Si esta realizando la práctica desplegando instancias de Docker con Mongo asegurese de que ha realizado bien el mapeo de puertos entre el contenedor y el host. Por otro lado, el autocorector se conecta a los servidores para realizar los tests sin usar usuario/contraseña. Por lo que se deben arrancar los servidores mongos sin ningún tipo de autenticación ya que si es así el autocorector fallará.
 
 Por último, si **cree que ha realizado alguna configuración mal, se recomienda parar las instancias de mongo y borrar (y crear de nuevo) las carpetas creadas en el anterior punto.**
 
@@ -81,7 +81,7 @@ Por último, si **cree que ha realizado alguna configuración mal, se recomienda
 
     Una vez arrancado, desde otro terminal, nos conectamos al servidor que va a actuar como primario
     ```
-    mongo --host localhost:27001
+    mongosh --host localhost:27001
     ```
     Inicialice el replicaSet del config server como hemos visto en las trasparencias de clase, teniendo en cuenta que solo hay una instancia de mongo dentro del clúster y que debemos especificar que se trata de un config server.
 
@@ -102,8 +102,12 @@ Por último, si **cree que ha realizado alguna configuración mal, se recomienda
 
     En un terminal de ubuntu, ejecutar la orden con mongos incluyendo lo anterior mencionado.
 
-4. En este paso, debe conectarse al router Mongos y añadir cada uno de los shards como se ha visto en las trasparencias de clase. Una vez realizado, cree un base de datos llamada "bio_bbdd" y una colección dentro de ella llamada "patients". Habilite el sharding en esa base de datos y defina una clave de particionamiento hashed para el atributo "dni" (el cual se creará a posteriori). IMPORTANTE: se debe hacer este paso obligatoriamente antes que el siguiente, ya que de otra manera el particionamiento no se hará efectivo.
-
+4. En este paso, debe conectarse al router Mongos y añadir cada uno de los shards como se ha visto en las trasparencias de clase. Una vez realizado, cree un base de datos llamada "bio_bbdd" y una colección dentro de ella llamada "patients" con las órdenes.
+    ```
+    use bio_bbdd
+    db.createCollection("patients")
+    ```
+    Habilite el sharding en esa base de datos y defina una clave de particionamiento hashed para el atributo "dni" (el cual se creará a posteriori). IMPORTANTE: se debe hacer este paso obligatoriamente antes que el siguiente, ya que de otra manera el particionamiento      no se hará efectivo.
 
 
 5. En este momento, debería de tener bien configurado las particiones. Puede ejecutar algunos comandos vistos en clase para ver el estado. A continuación, en el terminal y dentro del directorio donde hemos clonado el código de la práctica, ejecutamos los seeders para que añadir una serie de pacientes por defecto a nuestro replicaSet:
@@ -125,9 +129,18 @@ Por último, si **cree que ha realizado alguna configuración mal, se recomienda
 
 9. Insertar un nuevo paciente cuyo DNI sea el token del moodle del alumno por medio de la aplicación web de gestión de pacientes.
 
-10. Verificar que los datos se han escrito solamente en uno de los shards y que además se respeta el delay en el servidor de mongo que actúa como secundario dentro de ese shard.
+10. Verificar que los datos se han escrito solamente en uno de los shards.
 
-11. Sin detener la ejecución de las instancias de mongo. Añadir un una nueva instancia de mongo (localhost:27007) al primer shard (shard_servers_1). Esta Instancia debe estar configurado como arbiterOnly. Nuevamente cree un directorio especifico para esta instancia (Ej: data_patients/shard1_3), arranque una nueva instancia con mongod en otro terminal y consulte las transparencias de clase para ver como incluir un arbitro en el replicaSet.
+11. Sin detener la ejecución de las instancias de mongo. Añadir un una nueva instancia de mongo (localhost:27007) al primer shard (shard_servers_1). Esta Instancia debe estar configurado como arbiterOnly. Nuevamente cree un directorio especifico para esta instancia (Ej: data_patients/shard1_3), arranque una nueva instancia con mongod en otro terminal y consulte las transparencias de clase para ver como incluir un arbitro en el replicaSet. Para poder añadir el árbitro, debe primero habilitar la edición cambios en el shard cluster. Para ello, conectese al router mongos y ejecute la siguiente sentencia:
+
+    ```
+    db.adminCommand(
+        {
+            setDefaultRWConcern : 1,
+            defaultWriteConcern: { w: 1 },
+        }
+    )
+    ```
 
 ## 6. Prueba de la práctica 
 
