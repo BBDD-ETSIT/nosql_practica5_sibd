@@ -16,11 +16,11 @@
 			"githubURL": "BBDD-ETSIT/nosql_practica5_sibd",
 			"serverUrl": "https://aat.dit.upm.es/",
 			"courseId": "903",
-			"assignmentId": "32169"
+			"assignmentId": "7773"
 	},
 	"dependencies": {
 			"mongoose": "^6.7.1",
-			"autocorector": "^3.1.4",
+			"autocorector": "^4.0.1",
 			"body-parser": "~1.12.4",
 			"ejs": "^3.0.1",
 			"express": "~4.13.1",
