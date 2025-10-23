@@ -16,7 +16,7 @@
 
 Para realizar la práctica el alumno deberá tener instalado en su ordenador:
 - Herramienta GIT para gestión de repositorios [Github](https://git-scm.com/downloads)
-- Entorno de ejecución de javascript [NodeJS](https://nodejs.org/es/download/) version 16 o 18
+- Entorno de ejecución de javascript [NodeJS](https://nodejs.org/es/download/) version 22 o 24
 - Base de datos NoSQL [MongoDB](https://www.mongodb.com/download-center/community). Debe de poder ejecutar mongod y mongos
 
 ## 3. Descripción de la práctica
